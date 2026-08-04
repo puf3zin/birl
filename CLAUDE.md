@@ -131,31 +131,38 @@ próprio botão (ver `GrupoEditor`). Diálogo nativo é ruim no celular.
 
 ## Marca e ícones
 
-Todos saem de **Hendrick Goltzius, _Farnese Hercules_ (ca. 1592)** — gravura do
-Metropolitan Museum, domínio público. Dois recortes sobre o original de
-2730×3786:
+**São duas obras, de propósito** — as duas do Metropolitan Museum, domínio
+público, e as duas sobre o corpo treinado:
 
-- **Faixa** `crop=2100:800:450:200` — a imagem da interface (`Masthead`).
-- **Quadrado** `crop=1300:1300:750:200` — todos os ícones, com a figura
-  preenchendo o quadro.
+**Interface** — Hendrick Goltzius, _Farnese Hercules_ (ca. 1592), gravura.
+Recorte `crop=2100:800:450:200` sobre o original de 2730×3786, contraste 1.25,
+gerado em 1200×457 para `public/media/faixa.png`. Usado no `Masthead`, na
+largura da coluna.
 
-| Arquivo | Uso | Tratamento |
-|---|---|---|
-| `public/media/faixa.png` | `Masthead`, largura total da coluna | 1200×457, contraste 1.25 |
-| `app/icon.png` | favicon | 192px, contraste 1.8 |
-| `app/apple-icon.png` | tela de início do iOS | 180px, contraste 1.6 |
-| `public/icone-{192,512}.png` | manifest, `purpose: any` | sangra até a borda |
-| `public/icone-512-mask.png` | manifest, `purpose: maskable` | figura em 80%, resto no tom do papel |
+**Ícones** — Pintor de Euphiletos, ânfora panatenaica de prêmio (ca. 530 a.C.),
+figuras negras. Recorte `crop=560:560:450:585` sobre o original de 1560×2000,
+sem tratamento de contraste.
+
+| Arquivo | Uso |
+|---|---|
+| `app/icon.png` | favicon, 192px |
+| `app/apple-icon.png` | tela de início do iOS, 180px |
+| `public/icone-{192,512}.png` | manifest, `purpose: any` — sangra até a borda |
+| `public/icone-512-mask.png` | manifest, `purpose: maskable` — figura em 80%, resto em `#d07135` |
+
+**Por que a gravura não vira ícone.** A do Goltzius é hachura fina: abaixo de
+~48px vira um borrão cinza uniforme, e nem recorte mais fechado nem realce de
+contraste resolvem — foram tentados os dois. Figura negra chapada sobre
+terracota tem contraste de área, não de linha, e por isso sobrevive a qualquer
+redução. **Ao escolher arte para ícone, procure silhueta e campo de cor, não
+detalhe.**
 
 **Só o `maskable` leva margem.** O Android recorta até 20% da borda *nesse
 purpose específico*; apontar o `any` para o arquivo com margem faz a figura
 parecer pequena em todo lugar. Já aconteceu uma vez.
 
-**O contraste realçado não é enfeite.** Sem ele a gravura vira um borrão cinza
-abaixo de ~48px — hachura fina não sobrevive à redução. Ao trocar o recorte,
-renderize no tamanho final de uso (180px para ícone) e compare lado a lado, em
-vez de julgar pela versão grande. A 32px nenhum recorte resolve: é limite da
-técnica, não do enquadramento.
+Ao trocar qualquer recorte, renderize no tamanho final de uso (180px para
+ícone) e compare lado a lado — julgar pela versão grande engana.
 
 Gerados com `ffmpeg` num passo avulso (não há dependência de imagem no
 projeto). Os comandos exatos estão no commit "Visual do puf3, seed real e

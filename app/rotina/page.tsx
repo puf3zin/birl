@@ -125,10 +125,20 @@ export default function Rotina() {
         )}
       </section>
 
-      <p className="mt-10 border-t border-line pt-4 text-[11px] leading-relaxed text-muted">
-        Hendrick Goltzius, <span className="italic">Farnese Hercules</span>,
-        ca. 1592. The Metropolitan Museum of Art, domínio público.
-      </p>
+      <div className="mt-10 border-t border-line pt-4 text-[11px] leading-relaxed text-muted">
+        <p>
+          Hendrick Goltzius, <span className="italic">Farnese Hercules</span>,
+          ca. 1592.
+        </p>
+        <p className="mt-1">
+          Pintor de Euphiletos,{" "}
+          <span className="italic">ânfora panatenaica de prêmio</span>, ca. 530
+          a.C.
+        </p>
+        <p className="mt-2">
+          The Metropolitan Museum of Art, domínio público.
+        </p>
+      </div>
     </main>
   );
 }
