@@ -157,6 +157,12 @@ terracota tem contraste de área, não de linha, e por isso sobrevive a qualquer
 redução. **Ao escolher arte para ícone, procure silhueta e campo de cor, não
 detalhe.**
 
+**Encher o quadro com uma figura só piora.** Foram testados recortes de um
+corredor (270, 330 e 400px de origem) contra o de três: a 32px os fechados
+viram massa escura, porque some o laranja que separa os corpos. É o vazio
+*entre* as figuras que dá ritmo e legibilidade no tamanho pequeno. Contraintuitivo,
+mas medido — não "aumente a figura" sem testar a 32px.
+
 **Só o `maskable` leva margem.** O Android recorta até 20% da borda *nesse
 purpose específico*; apontar o `any` para o arquivo com margem faz a figura
 parecer pequena em todo lugar. Já aconteceu uma vez.
