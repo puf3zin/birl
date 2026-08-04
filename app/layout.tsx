@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { NavBar } from "@/components/NavBar";
 import { Provedor } from "@/lib/store";
 import "./globals.css";
 
@@ -16,7 +17,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "birl",
   description: "Contador de séries por grupo muscular na semana.",
-  manifest: "/manifest.json",
+  // O <link rel="manifest"> vem do app/manifest.ts. Instalar na tela de início
+  // também isenta o app do ITP do Safari, que apaga localStorage de site não
+  // instalado depois de 7 dias sem visita.
   appleWebApp: { capable: true, title: "birl", statusBarStyle: "black-translucent" },
 };
 
@@ -33,7 +36,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <Provedor>{children}</Provedor>
+        <Provedor>
+          {children}
+          <NavBar />
+        </Provedor>
       </body>
     </html>
   );
