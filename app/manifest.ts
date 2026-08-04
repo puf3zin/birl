@@ -11,9 +11,18 @@ export default function manifest(): MetadataRoute.Manifest {
     background_color: "#171815",
     theme_color: "#171815",
     icons: [
-      { src: "/icone-192.png", sizes: "192x192", type: "image/png", purpose: "maskable" },
-      { src: "/icone-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
+      // `any` sangra até a borda — é o que aparece na maioria dos lugares, e a
+      // figura precisa ocupar o quadro inteiro aqui.
+      { src: "/icone-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
       { src: "/icone-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
+      // `maskable` é o único que leva margem: o Android recorta até 20% da
+      // borda, então a figura fica em 80% do quadro sobre o tom do papel.
+      {
+        src: "/icone-512-mask.png",
+        sizes: "512x512",
+        type: "image/png",
+        purpose: "maskable",
+      },
     ],
   };
 }

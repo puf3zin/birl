@@ -72,6 +72,11 @@ qualquer tela. Resumo do que vale aqui:
 - Grão de filme e blobs vivem em `body::before/::after`, decorativos, atrás do
   conteúdo, e respeitam `prefers-reduced-motion`.
 
+**Nunca ponha `background` no `html`.** O CSS propaga o fundo do `body` para o
+canvas *só quando o `html` não tem um*. Com `html { background }`, o `body`
+passa a pintar o próprio fundo e cobre por inteiro o grão e os blobs, que estão
+em `z-index: -1` — eles somem sem erro nenhum no console. Já aconteceu uma vez.
+
 **Tokens em inglês, de propósito.** `background / foreground / muted / soft /
 line / accent / accent-soft / emphasis` são o vocabulário do puf3 — mantê-los
 idênticos é o que deixa componente portar entre os dois projetos. É a única
@@ -126,22 +131,31 @@ próprio botão (ver `GrupoEditor`). Diálogo nativo é ruim no celular.
 
 ## Marca e ícones
 
-Todos saem do mesmo recorte de **Hendrick Goltzius, _Farnese Hercules_ (ca.
-1592)** — gravura do Metropolitan Museum, domínio público. O recorte fecha nas
-costas e na mão, e é sempre `crop=1360:1360:700:150` sobre o original de
-2730×3786.
+Todos saem de **Hendrick Goltzius, _Farnese Hercules_ (ca. 1592)** — gravura do
+Metropolitan Museum, domínio público. Dois recortes sobre o original de
+2730×3786:
+
+- **Faixa** `crop=2100:800:450:200` — a imagem da interface (`Masthead`).
+- **Quadrado** `crop=1300:1300:750:200` — todos os ícones, com a figura
+  preenchendo o quadro.
 
 | Arquivo | Uso | Tratamento |
 |---|---|---|
-| `public/media/marca.png` | marca da interface (`Masthead`, 40px) | 128px, contraste 1.9 |
+| `public/media/faixa.png` | `Masthead`, largura total da coluna | 1200×457, contraste 1.25 |
 | `app/icon.png` | favicon | 192px, contraste 1.8 |
-| `app/apple-icon.png` | tela de início do iOS | 180px, contraste 1.7 |
-| `public/icone-{192,512}.png` | manifest, `maskable` | figura em 78% da caixa, resto no tom do papel |
+| `app/apple-icon.png` | tela de início do iOS | 180px, contraste 1.6 |
+| `public/icone-{192,512}.png` | manifest, `purpose: any` | sangra até a borda |
+| `public/icone-512-mask.png` | manifest, `purpose: maskable` | figura em 80%, resto no tom do papel |
+
+**Só o `maskable` leva margem.** O Android recorta até 20% da borda *nesse
+purpose específico*; apontar o `any` para o arquivo com margem faz a figura
+parecer pequena em todo lugar. Já aconteceu uma vez.
 
 **O contraste realçado não é enfeite.** Sem ele a gravura vira um borrão cinza
-abaixo de ~48px — hachura fina não sobrevive à redução. Se for trocar o
-recorte, renderize no tamanho final e amplie com vizinho-mais-próximo pra
-julgar, em vez de olhar a versão grande.
+abaixo de ~48px — hachura fina não sobrevive à redução. Ao trocar o recorte,
+renderize no tamanho final de uso (180px para ícone) e compare lado a lado, em
+vez de julgar pela versão grande. A 32px nenhum recorte resolve: é limite da
+técnica, não do enquadramento.
 
 Gerados com `ffmpeg` num passo avulso (não há dependência de imagem no
 projeto). Os comandos exatos estão no commit "Visual do puf3, seed real e

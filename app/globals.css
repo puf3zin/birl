@@ -61,10 +61,13 @@
   --font-mono: var(--font-geist-mono);
 }
 
-html {
-  background: var(--background);
-}
-
+/*
+ * O fundo fica SÓ no body, de propósito. O CSS propaga o fundo do body para o
+ * canvas quando o html não tem um — e é isso que deixa a caixa do body sem
+ * pintura própria, permitindo que o grão (body::after, z-index -1) apareça.
+ * Colocar `background` no html quebra a propagação: o body passa a pintar o
+ * próprio fundo e cobre o grão inteiro.
+ */
 body {
   background: var(--background);
   color: var(--foreground);
