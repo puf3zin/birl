@@ -47,8 +47,12 @@ export function useLoja(): Loja {
 export function Provedor({ children }: { children: React.ReactNode }) {
   const [estado, setEstado] = useState<Estado | null>(null);
 
-  // localStorage só existe no cliente.
+  // localStorage só existe no cliente, e o HTML do servidor é sempre o estado
+  // "carregando". Ler no inicializador do useState faria o primeiro render do
+  // cliente divergir do servidor — erro de hidratação. O render extra aqui é
+  // proposital: é o preço de hidratar a partir do localStorage.
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setEstado(normalizar(lerEstado(localStorage.getItem(CHAVE)), Date.now()));
   }, []);
 
