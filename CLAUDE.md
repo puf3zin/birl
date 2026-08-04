@@ -139,40 +139,60 @@ Recorte `crop=2100:800:450:200` sobre o original de 2730×3786, contraste 1.25,
 gerado em 1200×457 para `public/media/faixa.png`. Usado no `Masthead`, na
 largura da coluna.
 
-**Ícones** — Pintor de Euphiletos, ânfora panatenaica de prêmio (ca. 530 a.C.),
-figuras negras. Recorte `crop=560:560:450:585` sobre o original de 1560×2000,
-sem tratamento de contraste.
+**Ícones de obra** — Pintor de Loeb, ânfora nolana ática (ca. 440–430 a.C.),
+figura vermelha. Recorte `crop=1080:1440:1060:1490` sobre o original de
+3218×4000, completado para quadrado com o próprio preto do vaso
+(`pad=1440:1440:180:0:0x0d0906`) — assim não entra a curvatura nem o fundo
+cinza da foto. Sem tratamento de contraste.
 
 | Arquivo | Uso |
 |---|---|
-| `app/icon.png` | favicon, 192px |
+| `app/icon.tsx` | favicon — **marca tipográfica**, não obra (ver abaixo) |
 | `app/apple-icon.png` | tela de início do iOS, 180px |
 | `public/icone-{192,512}.png` | manifest, `purpose: any` — sangra até a borda |
-| `public/icone-512-mask.png` | manifest, `purpose: maskable` — figura em 80%, resto em `#d07135` |
+| `public/icone-512-mask.png` | manifest, `purpose: maskable` — figura em 80%, resto em `#0d0906` |
 
-**Por que a gravura não vira ícone.** A do Goltzius é hachura fina: abaixo de
-~48px vira um borrão cinza uniforme, e nem recorte mais fechado nem realce de
-contraste resolvem — foram tentados os dois. Figura negra chapada sobre
-terracota tem contraste de área, não de linha, e por isso sobrevive a qualquer
-redução. **Ao escolher arte para ícone, procure silhueta e campo de cor, não
-detalhe.**
+**O favicon é o único que não usa obra.** A 32px (e a 16px, que é o tamanho
+real na aba do Chrome) nenhuma pintura sobrevive — foram renderizados no
+tamanho final e comparados: Goltzius, ânfora panatenaica, Herakles com o leão
+nemeu e o próprio atleta de Loeb. Todos viram mancha. Então `app/icon.tsx`
+gera um "b" via `ImageResponse`, nas cores amostradas do vaso
+(`#0d0906` / `#e5891f`), o que mantém os dois ícones lendo como um conjunto.
+`app/icon.png` **não deve existir** — conflita com o `icon.tsx`.
 
-**Encher o quadro com uma figura só piora.** Foram testados recortes de um
-corredor (270, 330 e 400px de origem) contra o de três: a 32px os fechados
-viram massa escura, porque some o laranja que separa os corpos. É o vazio
-*entre* as figuras que dá ritmo e legibilidade no tamanho pequeno. Contraintuitivo,
-mas medido — não "aumente a figura" sem testar a 32px.
+### O que foi aprendido escolhendo esses ícones
+
+Três rodadas de teste, todas renderizando no tamanho final de uso e comparando
+lado a lado. Vale a pena não repetir:
+
+1. **Contraste de linha morre; contraste de área sobrevive.** A gravura do
+   Goltzius é hachura fina — abaixo de ~48px vira cinza uniforme, e nem recorte
+   fechado nem realce de contraste salvam.
+2. **A direção do contraste importa mais que o recorte.** Figura escura sobre
+   fundo claro (corredores panatenaicos, Herakles e o leão) se fragmenta em
+   ruído. Figura clara sobre fundo escuro (o atleta de Loeb) continua legível.
+   Essa foi a virada.
+3. **Encher o quadro com uma figura piora, quando as figuras são escuras.**
+   Recortes de um corredor só (270/330/400px de origem) ficaram piores que o de
+   três: some o laranja que separa os corpos, e é ele que dá ritmo.
+4. **Abaixo de ~48px, nenhuma obra funciona.** Daí o híbrido: marca tipográfica
+   na aba, obra na tela de início.
+
+Descartados por contraste baixo, sem chegar a virar recorte: estatueta de
+bronze (verde sobre cinza, e vem com suporte de museu numerado), gravura de
+sumô (rosa sobre cinza), relevo egípcio (pedra sobre pedra).
+
+**Ao trocar qualquer ícone**: renderize no tamanho final (180px e 32px),
+amplie com vizinho-mais-próximo e compare lado a lado. Julgar pela versão
+grande engana sempre.
 
 **Só o `maskable` leva margem.** O Android recorta até 20% da borda *nesse
 purpose específico*; apontar o `any` para o arquivo com margem faz a figura
 parecer pequena em todo lugar. Já aconteceu uma vez.
 
-Ao trocar qualquer recorte, renderize no tamanho final de uso (180px para
-ícone) e compare lado a lado — julgar pela versão grande engana.
-
-Gerados com `ffmpeg` num passo avulso (não há dependência de imagem no
-projeto). Os comandos exatos estão no commit "Visual do puf3, seed real e
-Hercules de Goltzius como marca".
+Os PNGs são gerados com `ffmpeg` num passo avulso — não há dependência de
+imagem no projeto. Os comandos exatos de cada asset ficam na mensagem do commit
+que o introduziu (`git log --grep=ffmpeg`).
 
 ## Dados
 

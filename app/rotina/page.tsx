@@ -131,9 +131,8 @@ export default function Rotina() {
           ca. 1592.
         </p>
         <p className="mt-1">
-          Pintor de Euphiletos,{" "}
-          <span className="italic">ânfora panatenaica de prêmio</span>, ca. 530
-          a.C.
+          Pintor de Loeb, <span className="italic">ânfora nolana</span>, ca.
+          440–430 a.C.
         </p>
         <p className="mt-2">
           The Metropolitan Museum of Art, domínio público.
