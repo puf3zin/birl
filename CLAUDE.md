@@ -52,10 +52,35 @@ docs/specs/          spec do projeto
 docs/planos/         planos de implementação por fatia
 ```
 
+## Visual
+
+O sistema é portado do puf3 — leia **`../puf3/DESIGN.md`** antes de mexer em
+qualquer tela. Resumo do que vale aqui:
+
+- **Duas paletas, do puf3**, trocadas pelo modo do sistema:
+  `claro` → Hokusai (índigo `#1e4d70`), `escuro` → Friedrich (carvão `#171815`).
+  As duas são fundos escuros; `color-scheme: dark` vale nos dois.
+- **Editorial, não "app".** Estrutura vem de fio de 1px (`border-line`) e ar —
+  não de card, sombra ou botão preenchido. Não existe `rounded` fora dos pills.
+- **O rótulo mono é a assinatura**: classe `.rotulo` (mono, versalete, tracking
+  `0.18em`, cor `muted`). Todo título de seção, label e ação secundária usa ele.
+- **Tracking é bidirecional**: negativo no texto grande, largo no mono pequeno.
+- **Números** sempre `tabular`. O número em destaque usa `emphasis` — é o único
+  momento de cor forte da tela, então não espalhe.
+- **Escala fracionária** (`10.5px`, `12.5px`, `15.5px`, `22px`, `34px`), não a
+  rampa `sm/base/lg`.
+- Grão de filme e blobs vivem em `body::before/::after`, decorativos, atrás do
+  conteúdo, e respeitam `prefers-reduced-motion`.
+
+**Tokens em inglês, de propósito.** `background / foreground / muted / soft /
+line / accent / accent-soft / emphasis` são o vocabulário do puf3 — mantê-los
+idênticos é o que deixa componente portar entre os dois projetos. É a única
+exceção à regra do português. **Nunca hex cru em componente.**
+
 ## Convenções
 
 **Português no código.** Nomes de tipos, funções, variáveis e comentários em
-pt-BR. Siga o que já está lá.
+pt-BR. Siga o que já está lá — a exceção são os tokens de cor, acima.
 
 **`lib/estado.ts` não importa React.** Toda regra de negócio vive lá como função
 pura, e é isso que permite verificá-la isolada. `lib/store.tsx` só cuida de
@@ -99,12 +124,28 @@ histórico numa linha "Fora da rotina", sem barra e fora do placar da semana.
 **Nada de `window.confirm`/`alert`.** Confirmação destrutiva é em dois toques no
 próprio botão (ver `GrupoEditor`). Diálogo nativo é ruim no celular.
 
-## Ícones
+## Marca e ícones
 
-`public/icone-{192,512}.png`, `app/icon.png` e `app/apple-icon.png` foram
-gerados por um script avulso que escreve PNG na mão com `zlib` — não há
-dependência de imagem no projeto. Para regerar, veja o commit "Navegação
-inferior, manifest e ícones".
+Todos saem do mesmo recorte de **Hendrick Goltzius, _Farnese Hercules_ (ca.
+1592)** — gravura do Metropolitan Museum, domínio público. O recorte fecha nas
+costas e na mão, e é sempre `crop=1360:1360:700:150` sobre o original de
+2730×3786.
+
+| Arquivo | Uso | Tratamento |
+|---|---|---|
+| `public/media/marca.png` | marca da interface (`Masthead`, 40px) | 128px, contraste 1.9 |
+| `app/icon.png` | favicon | 192px, contraste 1.8 |
+| `app/apple-icon.png` | tela de início do iOS | 180px, contraste 1.7 |
+| `public/icone-{192,512}.png` | manifest, `maskable` | figura em 78% da caixa, resto no tom do papel |
+
+**O contraste realçado não é enfeite.** Sem ele a gravura vira um borrão cinza
+abaixo de ~48px — hachura fina não sobrevive à redução. Se for trocar o
+recorte, renderize no tamanho final e amplie com vizinho-mais-próximo pra
+julgar, em vez de olhar a versão grande.
+
+Gerados com `ffmpeg` num passo avulso (não há dependência de imagem no
+projeto). Os comandos exatos estão no commit "Visual do puf3, seed real e
+Hercules de Goltzius como marca".
 
 ## Dados
 

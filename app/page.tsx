@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { ExercicioSheet } from "@/components/ExercicioSheet";
 import { GrupoCard } from "@/components/GrupoCard";
+import { Masthead } from "@/components/Masthead";
 import { PainelDescanso } from "@/components/PainelDescanso";
 import { TempoDeTreino } from "@/components/TempoDeTreino";
 import { progressoPorGrupo } from "@/lib/estado";
@@ -17,11 +18,11 @@ export default function Semana() {
   if (!estado) {
     return (
       <main className="mx-auto w-full max-w-lg flex-1 px-5 pt-6">
-        <div className="h-6 w-24 animate-pulse rounded bg-superficie" />
-        <div className="mt-3 h-9 w-40 animate-pulse rounded bg-superficie" />
-        <div className="mt-6 space-y-3">
-          {[0, 1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-[86px] animate-pulse rounded-2xl bg-superficie" />
+        <Masthead />
+        <div className="mt-6 h-8 w-40 animate-pulse bg-soft" />
+        <div className="mt-8 space-y-6">
+          {[0, 1, 2, 3, 4, 5, 6].map((i) => (
+            <div key={i} className="h-10 animate-pulse bg-soft" />
           ))}
         </div>
       </main>
@@ -36,14 +37,16 @@ export default function Semana() {
 
   return (
     <>
-      <main className="mx-auto w-full max-w-lg flex-1 px-5 pt-6 pb-40">
-        <header className="mb-6 flex items-start justify-between gap-4">
+      <main className="mx-auto w-full max-w-lg flex-1 px-5 pb-40 pt-6">
+        <Masthead />
+
+        <header className="flex items-start justify-between gap-4 border-b border-line py-6">
           <div>
-            <p className="text-xs uppercase tracking-widest text-suave">Semana</p>
-            <h1 className="text-3xl font-bold tracking-tight">
+            <p className="rotulo">Semana</p>
+            <h1 className="mt-1 text-[34px] font-semibold leading-none tracking-[-0.02em]">
               {rotuloDaSemana(hoje)}
             </h1>
-            <p className="tabular mt-1 text-sm text-suave">
+            <p className="tabular mt-2 font-mono text-[11.5px] text-muted">
               {feitoTotal} de {metaTotal} séries
             </p>
           </div>
@@ -51,15 +54,15 @@ export default function Semana() {
         </header>
 
         {progresso.length === 0 ? (
-          <p className="rounded-2xl border border-borda bg-superficie p-5 text-suave">
+          <p className="py-8 text-[15.5px] leading-relaxed text-muted">
             Nenhum grupo muscular na sua rotina ainda.{" "}
-            <Link href="/rotina" className="text-acento underline">
+            <Link href="/rotina" className="text-accent">
               Montar a rotina
             </Link>
             .
           </p>
         ) : (
-          <ul className="space-y-3">
+          <ul>
             {progresso.map(({ grupo, feito }) => (
               <li key={grupo.id}>
                 <GrupoCard

@@ -36,13 +36,13 @@ export function GrupoEditor({
   }
 
   return (
-    <div className="rounded-2xl border border-borda bg-superficie p-4">
+    <div className="border-b border-line py-4">
       <div className="flex items-center gap-3">
         <input
           value={grupo.nome}
           onChange={(e) => atualizarGrupo(grupo.id, { nome: e.target.value })}
           aria-label="Nome do grupo"
-          className="min-w-0 flex-1 rounded-lg bg-transparent py-1 text-[17px] font-medium outline-none focus:bg-fundo focus:px-2"
+          className="min-w-0 flex-1 bg-transparent py-1 text-[15.5px] outline-none focus:text-accent"
         />
         <div className="flex shrink-0 items-center gap-1">
           <button
@@ -51,27 +51,29 @@ export function GrupoEditor({
             onClick={() =>
               atualizarGrupo(grupo.id, { meta: Math.max(0, grupo.meta - 1) })
             }
-            className="size-10 rounded-lg border border-borda text-lg active:bg-borda"
+            className="size-10 text-muted transition-colors active:text-foreground"
           >
             −
           </button>
-          <span className="tabular w-9 text-center text-lg">{grupo.meta}</span>
+          <span className="tabular w-8 text-center font-mono text-[15px]">
+            {grupo.meta}
+          </span>
           <button
             type="button"
             aria-label={`Aumentar meta de ${grupo.nome}`}
             onClick={() => atualizarGrupo(grupo.id, { meta: grupo.meta + 1 })}
-            className="size-10 rounded-lg border border-borda text-lg active:bg-borda"
+            className="size-10 text-muted transition-colors active:text-foreground"
           >
             +
           </button>
         </div>
       </div>
 
-      <div className="mt-3 flex flex-wrap items-center gap-2 text-sm text-suave">
+      <div className="mt-1 flex flex-wrap items-center gap-5">
         <button
           type="button"
           onClick={() => setAberto((v) => !v)}
-          className="rounded-lg border border-borda px-3 py-1.5 active:bg-borda"
+          className="rotulo min-h-9 transition-colors active:text-foreground"
         >
           {aberto ? "ocultar" : `${exercicios.length} exercícios`}
         </button>
@@ -80,7 +82,7 @@ export function GrupoEditor({
           aria-label={`Subir ${grupo.nome}`}
           disabled={primeiro}
           onClick={() => moverGrupo(grupo.id, -1)}
-          className="rounded-lg border border-borda px-3 py-1.5 disabled:opacity-30 active:bg-borda"
+          className="rotulo min-h-9 disabled:opacity-25"
         >
           ↑
         </button>
@@ -89,7 +91,7 @@ export function GrupoEditor({
           aria-label={`Descer ${grupo.nome}`}
           disabled={ultimo}
           onClick={() => moverGrupo(grupo.id, 1)}
-          className="rounded-lg border border-borda px-3 py-1.5 disabled:opacity-30 active:bg-borda"
+          className="rotulo min-h-9 disabled:opacity-25"
         >
           ↓
         </button>
@@ -100,10 +102,8 @@ export function GrupoEditor({
             else setConfirmandoRemocao(true);
           }}
           onBlur={() => setConfirmandoRemocao(false)}
-          className={`ml-auto rounded-lg border px-3 py-1.5 ${
-            confirmandoRemocao
-              ? "border-red-500 text-red-400"
-              : "border-borda active:bg-borda"
+          className={`rotulo ml-auto min-h-9 ${
+            confirmandoRemocao ? "text-emphasis" : ""
           }`}
         >
           {confirmandoRemocao ? "confirmar?" : "remover"}
@@ -111,32 +111,34 @@ export function GrupoEditor({
       </div>
 
       {aberto && (
-        <ul className="mt-3 space-y-1 border-t border-borda pt-3">
+        <ul className="mt-3 border-t border-line pt-2">
           {exercicios.map((ex) => (
             <li key={ex.id} className="flex items-center gap-2">
-              <span className="min-w-0 flex-1 truncate">{ex.nome}</span>
+              <span className="min-w-0 flex-1 truncate text-[14px]">
+                {ex.nome}
+              </span>
               <button
                 type="button"
                 aria-label={`Remover ${ex.nome}`}
                 onClick={() => removerExercicio(ex.id)}
-                className="size-9 shrink-0 rounded-lg text-suave active:bg-borda"
+                className="size-9 shrink-0 text-muted transition-colors active:text-foreground"
               >
                 ×
               </button>
             </li>
           ))}
-          <li className="flex gap-2 pt-1">
+          <li className="flex items-center gap-3 pt-1">
             <input
               value={novo}
               onChange={(e) => setNovo(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && adicionar()}
               placeholder="Novo exercício"
-              className="min-h-11 min-w-0 flex-1 rounded-xl border border-borda bg-fundo px-3 outline-none focus:border-acento"
+              className="min-h-10 min-w-0 flex-1 border-b border-line bg-transparent text-[14px] outline-none placeholder:text-muted focus:border-accent"
             />
             <button
               type="button"
               onClick={adicionar}
-              className="min-h-11 shrink-0 rounded-xl border border-borda px-4 text-suave active:bg-borda"
+              className="rotulo min-h-10 text-accent"
             >
               Adicionar
             </button>

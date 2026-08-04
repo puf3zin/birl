@@ -42,28 +42,27 @@ export function ExercicioSheet({
         type="button"
         aria-label="Fechar"
         onClick={aoFechar}
-        className="absolute inset-0 bg-black/70"
+        className="absolute inset-0 bg-black/60"
       />
 
-      <div className="relative mx-auto max-h-[85vh] w-full max-w-lg overflow-y-auto rounded-t-3xl border border-b-0 border-borda bg-superficie pb-[env(safe-area-inset-bottom)]">
-        <div className="sticky top-0 flex items-center justify-between gap-3 border-b border-borda bg-superficie px-5 py-4">
+      <div className="relative mx-auto max-h-[85vh] w-full max-w-lg overflow-y-auto border-t border-line bg-background pb-[env(safe-area-inset-bottom)]">
+        <div className="sticky top-0 flex items-end justify-between gap-3 border-b border-line bg-background px-5 pb-3 pt-5">
           <div>
-            <h2 className="text-lg font-semibold">{grupo.nome}</h2>
-            <p className="tabular text-sm text-suave">
+            <p className="rotulo">{grupo.nome}</p>
+            <p className="tabular mt-1 font-mono text-[13px] text-muted">
               {feito}/{grupo.meta} nesta semana
             </p>
           </div>
           <button
             type="button"
             onClick={aoFechar}
-            className="-mr-2 px-3 py-2 text-2xl leading-none text-suave"
-            aria-label="Fechar"
+            className="rotulo -mr-1 px-2 py-1"
           >
-            ×
+            Fechar
           </button>
         </div>
 
-        <ul className="p-3">
+        <ul className="px-5">
           {exercicios.map((ex) => (
             <li key={ex.id}>
               <button
@@ -72,11 +71,11 @@ export function ExercicioSheet({
                   registrarSerie(grupo.id, ex.id);
                   aoFechar();
                 }}
-                className="flex min-h-14 w-full items-center justify-between gap-3 rounded-xl px-3 text-left text-[17px] active:bg-borda"
+                className="flex min-h-14 w-full items-center justify-between gap-3 border-b border-line text-left text-[15.5px] transition-colors active:bg-soft"
               >
                 <span>{ex.nome}</span>
                 {ex.id === ultimo && (
-                  <span className="shrink-0 rounded-full bg-acento-suave px-2 py-0.5 text-xs text-acento">
+                  <span className="rotulo shrink-0 rounded-full bg-soft px-2 py-1">
                     último
                   </span>
                 )}
@@ -85,14 +84,14 @@ export function ExercicioSheet({
           ))}
 
           {exercicios.length === 0 && !adicionando && (
-            <li className="px-3 py-4 text-suave">
+            <li className="border-b border-line py-4 text-[15.5px] text-muted">
               Nenhum exercício aqui ainda.
             </li>
           )}
 
-          <li className="mt-1">
+          <li className="py-3">
             {adicionando ? (
-              <div className="flex gap-2 px-3">
+              <div className="flex items-center gap-3">
                 <input
                   autoFocus
                   value={nome}
@@ -102,12 +101,12 @@ export function ExercicioSheet({
                     if (e.key === "Escape") setAdicionando(false);
                   }}
                   placeholder="Nome do exercício"
-                  className="min-h-12 flex-1 rounded-xl border border-borda bg-fundo px-3 outline-none focus:border-acento"
+                  className="min-h-11 flex-1 border-b border-line bg-transparent text-[15.5px] outline-none placeholder:text-muted focus:border-accent"
                 />
                 <button
                   type="button"
                   onClick={confirmarNovo}
-                  className="min-h-12 rounded-xl bg-acento px-4 font-medium text-fundo"
+                  className="rotulo min-h-11 text-accent"
                 >
                   Salvar
                 </button>
@@ -116,9 +115,10 @@ export function ExercicioSheet({
               <button
                 type="button"
                 onClick={() => setAdicionando(true)}
-                className="min-h-14 w-full rounded-xl px-3 text-left text-[17px] text-suave active:bg-borda"
+                className="rotulo flex min-h-11 w-full items-center gap-2 text-left"
               >
-                + adicionar exercício
+                <span className="size-[3px] rounded-full bg-accent" aria-hidden />
+                adicionar exercício
               </button>
             )}
           </li>

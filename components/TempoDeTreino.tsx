@@ -12,8 +12,8 @@ export function TempoDeTreino({ estado }: { estado: Estado }) {
 
   return (
     <div className="text-right">
-      <p className="text-xs uppercase tracking-widest text-suave">Treino</p>
-      <p className="tabular text-2xl font-semibold">
+      <p className="rotulo">Treino</p>
+      <p className="tabular mt-1 text-[22px] font-semibold tracking-[-0.01em] text-emphasis">
         {relogio(agora - sessao.inicio)}
       </p>
     </div>

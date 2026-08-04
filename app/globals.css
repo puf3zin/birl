@@ -1,32 +1,135 @@
 @import "tailwindcss";
 
-@theme {
-  --color-fundo: #0b0b0d;
-  --color-superficie: #16161a;
-  --color-borda: #26262d;
-  --color-texto: #f2f2f3;
-  --color-suave: #8b8b94;
-  --color-acento: #c9f24d;
-  --color-acento-suave: #3a4718;
+/*
+ * Paleta portada do puf3 (ver ../puf3/DESIGN.md e ../puf3/app/globals.css).
+ * Lá as cores são propriedade da pintura em tela; aqui são o modo do sistema:
+ *
+ *   claro  → Hokusai, "The Suspension Bridge" — índigo profundo + sálvia/ouro
+ *   escuro → Friedrich, "Wanderer above the Sea of Fog" — carvão + cinza-azul
+ *
+ * As duas são fundos escuros, então `color-scheme: dark` vale nos dois — é o
+ * que mantém scrollbar e controles nativos coerentes no modo claro também.
+ */
+
+:root {
+  --background: #171815;
+  --foreground: #dcdad5;
+  --muted: #8c8a84;
+  --soft: #322f2a;
+  --line: #43413c;
+  --accent: #a0a4b8;
+  --accent-soft: #34394a;
+  --emphasis: #a0a4b8;
+
+  --blob-1: transparent;
+  --blob-2: transparent;
+  --blob-3: transparent;
+  --grain-opacity: 0.25;
+
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --background: #1e4d70;
+    --foreground: #eef2f0;
+    --muted: #93aec2;
+    --soft: #1a4162;
+    --line: #2f5f82;
+    --accent: #a5b78b;
+    --accent-soft: #294a3c;
+    --emphasis: #f3d58a;
+
+    --blob-1: rgba(160, 195, 181, 0.4);
+    --blob-2: rgba(165, 183, 139, 0.32);
+    --blob-3: rgba(243, 213, 138, 0.3);
+    --grain-opacity: 0.22;
+  }
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-soft: var(--soft);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-emphasis: var(--emphasis);
 
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
 html {
-  background: var(--color-fundo);
-  color-scheme: dark;
+  background: var(--background);
 }
 
 body {
-  background: var(--color-fundo);
-  color: var(--color-texto);
+  background: var(--background);
+  color: var(--foreground);
   font-family: var(--font-sans), system-ui, sans-serif;
   -webkit-tap-highlight-color: transparent;
   overscroll-behavior-y: none;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Números de cronômetro não podem "dançar" de largura a cada tique. */
+/* ---------- Atmosfera ----------
+   Campos de gradiente desfocados, só na paleta índigo (transparentes na
+   escura), e o grão de filme por cima. Ambos decorativos, atrás do conteúdo. */
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: -20%;
+  z-index: -2;
+  pointer-events: none;
+  background:
+    radial-gradient(40% 42% at 18% 15%, var(--blob-1), transparent 70%),
+    radial-gradient(46% 48% at 82% 25%, var(--blob-2), transparent 72%),
+    radial-gradient(55% 55% at 45% 100%, var(--blob-3), transparent 75%);
+  filter: blur(60px) saturate(1.1);
+  animation: birl-drift 32s ease-in-out infinite;
+}
+
+@keyframes birl-drift {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  33% { transform: translate3d(1.5%, -1%, 0) scale(1.04); }
+  66% { transform: translate3d(-1.2%, 1.6%, 0) scale(1.02); }
+}
+
+/* hard-light e não soft-light: é o que faz o grão aparecer tanto no carvão
+   quanto no índigo. z-index -1 pinta acima dos blobs mas abaixo de todo
+   conteúdo em fluxo, então o grão só aparece no fundo exposto. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: var(--grain-opacity);
+  mix-blend-mode: hard-light;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch' result='n'/%3E%3CfeColorMatrix in='n' type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncR type='linear' slope='1.7' intercept='-0.35'/%3E%3CfeFuncG type='linear' slope='1.7' intercept='-0.35'/%3E%3CfeFuncB type='linear' slope='1.7' intercept='-0.35'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::before {
+    animation: none;
+  }
+}
+
+/* ---------- Motivos ---------- */
+
+/* O rótulo mono é a assinatura do sistema: versalete, tracking largo, apagado. */
+.rotulo {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--muted);
+}
+
+/* Cronômetro e contador: números nunca mudam de largura a cada tique. */
 .tabular {
   font-variant-numeric: tabular-nums;
 }
