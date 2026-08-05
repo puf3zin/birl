@@ -139,26 +139,37 @@ Recorte `crop=2100:800:450:200` sobre o original de 2730×3786, contraste 1.25,
 gerado em 1200×457 para `public/media/faixa.png`. Usado no `Masthead`, na
 largura da coluna.
 
-**Ícones de obra** — Pintor de Loeb, ânfora nolana ática (ca. 440–430 a.C.),
-figura vermelha. Recorte `crop=1080:1440:1060:1490` sobre o original de
-3218×4000, completado para quadrado com o próprio preto do vaso
-(`pad=1440:1440:180:0:0x0d0906`) — assim não entra a curvatura nem o fundo
-cinza da foto. Sem tratamento de contraste.
+**Ícones de obra** — Auguste Rodin, _Study of a Hand_ (modelada ca. 1885),
+gesso, Met `191852`, foto `DP-12973-001` de 4000×2637. **Em escala de cinza**
+(`format=gray`), sem tonalizar. Dois recortes diferentes, de propósito:
+
+- `any` — `crop=2637:2637:731:0`. Quadrado tirado direto da foto, altura
+  cheia. Sangra até a borda; o punho e as pontas dos dedos ficam cortados.
+- `maskable` — `crop=3875:2637:113:0`, depois preenchido na vertical até o
+  quadrado com a cor exata de cada borda (`pad=…:0x2e2e2e` em cima,
+  `pad=…:0x595959` embaixo). Assim a mão inteira cabe em 80% do quadro **e**
+  a margem some dentro do gradiente da própria foto. Preenchimento chapado
+  ou gradiente sintético deixa emenda visível — já foi tentado.
 
 | Arquivo | Uso |
 |---|---|
 | `app/icon.tsx` | favicon — **marca tipográfica**, não obra (ver abaixo) |
 | `app/apple-icon.png` | tela de início do iOS, 180px |
 | `public/icone-{192,512}.png` | manifest, `purpose: any` — sangra até a borda |
-| `public/icone-512-mask.png` | manifest, `purpose: maskable` — figura em 80%, resto em `#0d0906` |
+| `public/icone-512-mask.png` | manifest, `purpose: maskable` — mão em 80%, margem no gradiente da foto |
 
 **O favicon é o único que não usa obra.** A 32px (e a 16px, que é o tamanho
 real na aba do Chrome) nenhuma pintura sobrevive — foram renderizados no
 tamanho final e comparados: Goltzius, ânfora panatenaica, Herakles com o leão
-nemeu e o próprio atleta de Loeb. Todos viram mancha. Então `app/icon.tsx`
-gera um "b" via `ImageResponse`, nas cores amostradas do vaso
-(`#0d0906` / `#e5891f`), o que mantém os dois ícones lendo como um conjunto.
+nemeu, o atleta de Loeb e a mão do Rodin. Todos viram mancha. Então
+`app/icon.tsx` gera um "b" via `ImageResponse`.
 `app/icon.png` **não deve existir** — conflita com o `icon.tsx`.
+
+**Pendência aberta: o favicon não conversa mais com os ícones.** O "b" ainda
+usa `#0d0906` / `#e5891f`, cores amostradas da ânfora de Loeb, que era a obra
+dos ícones antes do Rodin. Contra um gesso em escala de cinza, esse laranja
+não lê mais como conjunto — lê como dois projetos. Decidir: ou o "b" vira
+neutro, ou os ícones voltam a ter cor.
 
 ### O que foi aprendido escolhendo esses ícones
 
@@ -177,10 +188,23 @@ lado a lado. Vale a pena não repetir:
    três: some o laranja que separa os corpos, e é ele que dá ritmo.
 4. **Abaixo de ~48px, nenhuma obra funciona.** Daí o híbrido: marca tipográfica
    na aba, obra na tela de início.
+5. **Escultura fotografada ganha de desenho, sempre.** Na rodada que trouxe o
+   Rodin, os concorrentes eram dois estudos de mão a carvão — Ribot
+   (Cleveland `2009.120`) e Carletto Caliari (`1929.549.a`). Os dois leem a
+   180px e **os dois viram mancha a 32px**, porque desenho é linha por
+   definição. O gesso do Rodin é massa branca sólida sobre fundo escuro, e
+   sobrevive aos dois tamanhos. Não julgue pelo "parece ter o contraste
+   certo": o que decide é linha versus área.
 
 Descartados por contraste baixo, sem chegar a virar recorte: estatueta de
 bronze (verde sobre cinza, e vem com suporte de museu numerado), gravura de
 sumô (rosa sobre cinza), relevo egípcio (pedra sobre pedra).
+
+**O gesso do Rodin tem um furo de montagem no punho**, que aparece como um
+ponto escuro nos dois recortes. Não dá pra cortar fora sem invadir a palma —
+foi tentado. Fica: é um soquete do próprio molde. O número de inventário
+`12.12.8`, pintado em vermelho na peça, **some na conversão pra cinza** — é
+parte do motivo de o ícone ser preto e branco.
 
 **Ao trocar qualquer ícone**: renderize no tamanho final (180px e 32px),
 amplie com vizinho-mais-próximo e compare lado a lado. Julgar pela versão
