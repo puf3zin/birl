@@ -1,36 +1,64 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# birl
 
-## Getting Started
+Contador de volume de treino por semana. Você define quantas séries de cada
+grupo muscular quer fazer por semana — 8x peito, 8x escápula, 12x dedos — e o
+site conta o que já foi feito, cronometra o descanso e a duração do treino, e
+guarda o histórico.
 
-First, run the development server:
+No ar em **[birl.puf3.com](https://birl.puf3.com)**.
+
+## O que ele é, e o que não é
+
+Uso pessoal, um usuário só, sem login. Marcar uma série leva dois toques:
+grupo muscular → exercício. Não registra peso, repetições nem progressão de
+carga — cronometrar treino e descanso importa mais.
+
+**Não há backend, banco nem API routes.** Todo o estado vive num único objeto
+no `localStorage` do aparelho, o que significa R$0/mês de custo e
+funcionamento sem sinal. O preço é que os dados moram num device só; há
+exportação e importação de JSON como rede de segurança.
+
+## Rodando
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev     # localhost:3000
+npm run build   # inclui checagem de tipos
+npm run lint
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Não há suíte de testes. Verificar significa: o build passa e a tela afetada
+foi aberta no browser e usada.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Como é feito
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Next.js 16 (App Router), React 19, TypeScript, Tailwind v4. Deploy na Vercel.
 
-## Learn More
+A regra de negócio vive em `lib/estado.ts` como funções puras, sem importar
+React — é isso que permite verificá-la isolada. `lib/store.tsx` só cuida de
+estado do React e de escrever no `localStorage`.
 
-To learn more about Next.js, take a look at the following resources:
+Duas decisões que explicam boa parte do código:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **Uma série é o único fato gravado.** Progresso, sessões, histórico e totais
+  são todos derivados de `Serie[]`.
+- **Cronômetro é sempre `agora − timestamp`**, nunca um contador que
+  incrementa. É o que faz o tempo sobreviver a recarregar a página, bloquear a
+  tela ou fechar o app no meio do treino.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+O `CLAUDE.md` na raiz documenta as armadilhas em detalhe.
 
-## Deploy on Vercel
+## Visual
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Sistema portado do [puf3](https://puf3.com): duas paletas trocadas pelo modo do
+sistema — Hokusai (índigo) no claro, Friedrich (carvão) no escuro. Estrutura
+vem de fio de 1px e ar, não de card ou sombra.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Duas obras, ambas do Metropolitan Museum e em domínio público:
+
+- **Interface** — Hendrick Goltzius, *Farnese Hercules* (ca. 1592), gravura.
+- **Ícones** — Auguste Rodin, *Study of a Hand* (modelada ca. 1885), gesso.
+
+A escolha dos ícones foi decidida renderizando cada candidato no tamanho final
+de uso e comparando lado a lado. O aprendizado está registrado no `CLAUDE.md`:
+contraste de linha morre na redução, contraste de área sobrevive.
