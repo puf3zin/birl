@@ -1,6 +1,6 @@
 import { estadoInicial } from "./seed";
 import { inicioDaSemana, proximaSemana } from "./semana";
-import type { Estado, Exercicio, Grupo, Serie, Sessao } from "./tipos";
+import type { Estado, Exercicio, Grupo, Serie, Sessao, Unidade } from "./tipos";
 
 export const CHAVE = "birl.v1";
 
@@ -50,6 +50,47 @@ export function seriesDaSemana(estado: Estado, data: Date): Serie[] {
   return estado.series.filter((s) => s.ts >= de && s.ts < fim);
 }
 
+// ------------------------------------------------------------------ unidades
+
+export function ehKm(grupo: Grupo): boolean {
+  return grupo.unidade === "km";
+}
+
+/**
+ * Quanto uma série soma. Série de musculação vale 1; corrida vale a distância.
+ * O `?? 1` é o que mantém todo o histórico anterior ao campo `valor` válido.
+ */
+export function quantidade(serie: Serie): number {
+  return serie.valor ?? 1;
+}
+
+/** `12` para séries, `12,5 km` para distância. */
+export function formatarQuantidade(n: number, unidade?: Unidade): string {
+  if (unidade === "km") {
+    return `${n.toLocaleString("pt-BR", { maximumFractionDigits: 1 })} km`;
+  }
+  return String(n);
+}
+
+/** Só o número, sem sufixo — para os pares `feito/meta`. */
+export function formatarNumero(n: number, unidade?: Unidade): string {
+  if (unidade === "km") {
+    return n.toLocaleString("pt-BR", { maximumFractionDigits: 1 });
+  }
+  return String(n);
+}
+
+/** Soma por grupo, respeitando a unidade de cada série. */
+export function totalPorGrupo(series: Serie[]): Map<string, number> {
+  const total = new Map<string, number>();
+  for (const s of series) {
+    total.set(s.grupoId, (total.get(s.grupoId) ?? 0) + quantidade(s));
+  }
+  // Ponto flutuante: somar 0.1 muitas vezes vira 0.30000000000000004 na tela.
+  for (const [id, v] of total) total.set(id, Math.round(v * 100) / 100);
+  return total;
+}
+
 export type Progresso = { grupo: Grupo; feito: number };
 
 export function progressoPorGrupo(estado: Estado, data: Date): Progresso[] {
@@ -60,13 +101,18 @@ export function progressoDasSeries(
   grupos: Grupo[],
   series: Serie[],
 ): Progresso[] {
-  const contagem = new Map<string, number>();
-  for (const s of series) {
-    contagem.set(s.grupoId, (contagem.get(s.grupoId) ?? 0) + 1);
-  }
+  const total = totalPorGrupo(series);
   return [...grupos]
     .sort((a, b) => a.ordem - b.ordem)
-    .map((grupo) => ({ grupo, feito: contagem.get(grupo.id) ?? 0 }));
+    .map((grupo) => ({ grupo, feito: total.get(grupo.id) ?? 0 }));
+}
+
+/** Quanto já foi feito de cada grupo NO treino em andamento. */
+export function totalDaSessao(
+  estado: Estado,
+  sessaoId: string,
+): Map<string, number> {
+  return totalPorGrupo(seriesDaSessao(estado, sessaoId));
 }
 
 export function exerciciosDoGrupo(estado: Estado, grupoId: string): Exercicio[] {
@@ -112,13 +158,18 @@ export function normalizar(estado: Estado, agora: number): Estado {
   return mudou ? { ...estado, sessoes } : estado;
 }
 
-/** Registra a série na sessão aberta, ou abre uma nova se a anterior venceu. */
+/**
+ * Registra a série na sessão aberta, ou abre uma nova se a anterior venceu.
+ * `valor` só é gravado em grupo de distância — em grupo de séries ele fica
+ * ausente, e `quantidade()` devolve 1.
+ */
 export function comSerieRegistrada(
   estado: Estado,
   grupoId: string,
   exercicioId: string,
   agora: number,
   novoId: () => string,
+  valor?: number,
 ): Estado {
   const e = normalizar(estado, agora);
   const aberta = e.sessoes.find((s) => s.fim === null);
@@ -131,6 +182,9 @@ export function comSerieRegistrada(
     sessoes.push({ id: sessaoId, inicio: agora, fim: null });
   }
   const serie: Serie = { id: novoId(), grupoId, exercicioId, sessaoId, ts: agora };
+  if (valor !== undefined && Number.isFinite(valor) && valor > 0) {
+    serie.valor = valor;
+  }
   return { ...e, sessoes, series: [...e.series, serie] };
 }
 

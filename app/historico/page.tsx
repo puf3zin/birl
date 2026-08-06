@@ -2,6 +2,7 @@
 
 import { Barra } from "@/components/Barra";
 import { Masthead } from "@/components/Masthead";
+import { formatarNumero } from "@/lib/estado";
 import { resumoDaSemana, semanasComTreino, treinos } from "@/lib/historico";
 import { rotuloDaSemana, rotuloDeData } from "@/lib/semana";
 import { useLoja } from "@/lib/store";
@@ -47,8 +48,11 @@ export default function Historico() {
             {semanas.map((inicio, i) => {
               const linhas = resumoDaSemana(estado, inicio);
               // O total é sobre a rotina: séries de grupo que saiu dela ficam
-              // visíveis na lista, mas não inflam o placar contra a meta.
-              const daRotina = linhas.filter((l) => l.meta !== null);
+              // visíveis na lista, mas não inflam o placar contra a meta. E
+              // séries não somam com quilômetros — o placar é só das séries.
+              const daRotina = linhas.filter(
+                (l) => l.meta !== null && l.unidade !== "km",
+              );
               const feito = daRotina.reduce((n, l) => n + l.feito, 0);
               const meta = daRotina.reduce((n, l) => n + (l.meta ?? 0), 0);
               return (
@@ -81,8 +85,10 @@ export default function Historico() {
                             {l.nome}
                           </span>
                           <span className="tabular font-mono text-[11.5px] text-muted">
-                            {l.feito}
-                            {l.meta !== null && `/${l.meta}`}
+                            {formatarNumero(l.feito, l.unidade)}
+                            {l.meta !== null &&
+                              `/${formatarNumero(l.meta, l.unidade)}`}
+                            {l.unidade === "km" && " km"}
                           </span>
                         </div>
                         {l.meta !== null && (
@@ -116,8 +122,11 @@ export default function Historico() {
                   )}
                 </div>
                 <p className="tabular shrink-0 font-mono text-[12.5px] text-muted">
-                  {duracaoCurta(t.duracao)} · {t.series}
-                  {t.series === 1 ? " série" : " séries"}
+                  {duracaoCurta(t.duracao)}
+                  {t.series > 0 && (
+                    <> · {t.series}{t.series === 1 ? " série" : " séries"}</>
+                  )}
+                  {t.km > 0 && <> · {formatarNumero(t.km, "km")} km</>}
                 </p>
               </li>
             ))}

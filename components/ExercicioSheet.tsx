@@ -1,27 +1,45 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { exerciciosDoGrupo, ultimoExercicioDoGrupo } from "@/lib/estado";
+import {
+  ehKm,
+  exerciciosDoGrupo,
+  formatarNumero,
+  ultimoExercicioDoGrupo,
+} from "@/lib/estado";
 import { useLoja } from "@/lib/store";
 import type { Estado, Grupo } from "@/lib/tipos";
+
+/** Aceita "5,2" e "5.2". Devolve null quando não dá um número positivo. */
+function lerDistancia(bruto: string): number | null {
+  const n = Number(bruto.replace(",", ".").trim());
+  return Number.isFinite(n) && n > 0 ? n : null;
+}
 
 export function ExercicioSheet({
   estado,
   grupo,
   feito,
+  naSessao,
   aoFechar,
 }: {
   estado: Estado;
   grupo: Grupo;
   feito: number;
+  naSessao: number;
   aoFechar: () => void;
 }) {
   const { registrarSerie, adicionarExercicio } = useLoja();
   const [adicionando, setAdicionando] = useState(false);
   const [nome, setNome] = useState("");
+  // Em grupo de km, tocar no exercício não grava: abre o campo de distância.
+  const [pedindoKm, setPedindoKm] = useState<string | null>(null);
+  const [km, setKm] = useState("");
 
   const exercicios = exerciciosDoGrupo(estado, grupo.id);
   const ultimo = ultimoExercicioDoGrupo(estado, grupo.id);
+  const porDistancia = ehKm(grupo);
+  const num = (n: number) => formatarNumero(n, grupo.unidade);
 
   useEffect(() => {
     const aoTeclar = (e: KeyboardEvent) => e.key === "Escape" && aoFechar();
@@ -34,6 +52,23 @@ export function ExercicioSheet({
     adicionarExercicio(grupo.id, nome);
     setNome("");
     setAdicionando(false);
+  }
+
+  function tocarExercicio(exercicioId: string) {
+    if (porDistancia) {
+      setPedindoKm(exercicioId);
+      setKm("");
+      return;
+    }
+    registrarSerie(grupo.id, exercicioId);
+    aoFechar();
+  }
+
+  function confirmarDistancia() {
+    const valor = lerDistancia(km);
+    if (valor === null || !pedindoKm) return;
+    registrarSerie(grupo.id, pedindoKm, valor);
+    aoFechar();
   }
 
   return (
@@ -50,7 +85,17 @@ export function ExercicioSheet({
           <div>
             <p className="rotulo">{grupo.nome}</p>
             <p className="tabular mt-1 font-mono text-[13px] text-muted">
-              {feito}/{grupo.meta} nesta semana
+              {naSessao > 0 && (
+                <>
+                  <span className="text-foreground">
+                    {num(naSessao)}
+                    {porDistancia && " km"}
+                  </span>{" "}
+                  neste treino ·{" "}
+                </>
+              )}
+              {num(feito)}/{num(grupo.meta)}
+              {porDistancia && " km"} nesta semana
             </p>
           </div>
           <button
@@ -65,21 +110,48 @@ export function ExercicioSheet({
         <ul className="px-5">
           {exercicios.map((ex) => (
             <li key={ex.id}>
-              <button
-                type="button"
-                onClick={() => {
-                  registrarSerie(grupo.id, ex.id);
-                  aoFechar();
-                }}
-                className="flex min-h-14 w-full items-center justify-between gap-3 border-b border-line text-left text-[15.5px] transition-colors active:bg-soft"
-              >
-                <span>{ex.nome}</span>
-                {ex.id === ultimo && (
-                  <span className="rotulo shrink-0 rounded-full bg-soft px-2 py-1">
-                    último
+              {pedindoKm === ex.id ? (
+                <div className="flex items-center gap-3 border-b border-line py-3">
+                  <span className="min-w-0 flex-1 truncate text-[15.5px]">
+                    {ex.nome}
                   </span>
-                )}
-              </button>
+                  <input
+                    autoFocus
+                    value={km}
+                    onChange={(e) => setKm(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") confirmarDistancia();
+                      if (e.key === "Escape") setPedindoKm(null);
+                    }}
+                    inputMode="decimal"
+                    placeholder="0,0"
+                    aria-label={`Distância em quilômetros de ${ex.nome}`}
+                    className="tabular w-20 min-h-11 border-b border-line bg-transparent text-right font-mono text-[15.5px] outline-none placeholder:text-muted focus:border-accent"
+                  />
+                  <span className="rotulo">km</span>
+                  <button
+                    type="button"
+                    onClick={confirmarDistancia}
+                    disabled={lerDistancia(km) === null}
+                    className="rotulo min-h-11 text-accent disabled:opacity-30"
+                  >
+                    Registrar
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => tocarExercicio(ex.id)}
+                  className="flex min-h-14 w-full items-center justify-between gap-3 border-b border-line text-left text-[15.5px] transition-colors active:bg-soft"
+                >
+                  <span>{ex.nome}</span>
+                  {ex.id === ultimo && (
+                    <span className="rotulo shrink-0 rounded-full bg-soft px-2 py-1">
+                      último
+                    </span>
+                  )}
+                </button>
+              )}
             </li>
           ))}
 

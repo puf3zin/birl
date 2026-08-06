@@ -1,6 +1,13 @@
-import { fimDaSessao, seriesDaSemana, seriesDaSessao } from "./estado";
+import {
+  ehKm,
+  fimDaSessao,
+  quantidade,
+  seriesDaSemana,
+  seriesDaSessao,
+  totalPorGrupo,
+} from "./estado";
 import { inicioDaSemana } from "./semana";
-import type { Estado, Sessao } from "./tipos";
+import type { Estado, Sessao, Unidade } from "./tipos";
 
 /** Semanas já fechadas que têm alguma série, da mais recente pra mais antiga. */
 export function semanasComTreino(estado: Estado, hoje: Date): Date[] {
@@ -19,6 +26,7 @@ export type LinhaDaSemana = {
   feito: number;
   /** null para grupo que saiu da rotina depois — não há meta com que comparar. */
   meta: number | null;
+  unidade?: Unidade;
 };
 
 /**
@@ -27,11 +35,7 @@ export type LinhaDaSemana = {
  * enquanto a rotina muda de vez em quando.
  */
 export function resumoDaSemana(estado: Estado, inicio: Date): LinhaDaSemana[] {
-  const series = seriesDaSemana(estado, inicio);
-  const contagem = new Map<string, number>();
-  for (const s of series) {
-    contagem.set(s.grupoId, (contagem.get(s.grupoId) ?? 0) + 1);
-  }
+  const contagem = totalPorGrupo(seriesDaSemana(estado, inicio));
 
   const linhas: LinhaDaSemana[] = [...estado.grupos]
     .sort((a, b) => a.ordem - b.ordem)
@@ -40,6 +44,7 @@ export function resumoDaSemana(estado: Estado, inicio: Date): LinhaDaSemana[] {
       nome: g.nome,
       feito: contagem.get(g.id) ?? 0,
       meta: g.meta,
+      unidade: g.unidade,
     }));
 
   // Grupos que saíram da rotina mas deixaram séries naquela semana.
@@ -55,12 +60,19 @@ export type ResumoDeTreino = {
   sessao: Sessao;
   inicio: number;
   duracao: number;
+  /** Só as séries contadas — uma corrida não é uma série. */
   series: number;
+  /** Distância somada no treino, 0 quando não houve. */
+  km: number;
   grupos: string[];
 };
 
 /** Treinos encerrados, do mais recente pro mais antigo. */
 export function treinos(estado: Estado): ResumoDeTreino[] {
+  const porDistancia = new Set(
+    estado.grupos.filter(ehKm).map((g) => g.id),
+  );
+
   return estado.sessoes
     .filter((s) => s.fim !== null)
     .sort((a, b) => b.inicio - a.inicio)
@@ -71,11 +83,15 @@ export function treinos(estado: Estado): ResumoDeTreino[] {
         const nome = estado.grupos.find((g) => g.id === s.grupoId)?.nome;
         if (nome && !vistos.includes(nome)) vistos.push(nome);
       }
+      const km = series
+        .filter((s) => porDistancia.has(s.grupoId))
+        .reduce((n, s) => n + quantidade(s), 0);
       return {
         sessao,
         inicio: sessao.inicio,
         duracao: fimDaSessao(estado, sessao) - sessao.inicio,
-        series: series.length,
+        series: series.filter((s) => !porDistancia.has(s.grupoId)).length,
+        km: Math.round(km * 100) / 100,
         grupos: vistos,
       };
     });

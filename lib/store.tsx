@@ -24,7 +24,12 @@ function novoId() {
 type Loja = {
   /** null enquanto o localStorage não foi lido — nenhuma tela mostra número antes disso. */
   estado: Estado | null;
-  registrarSerie: (grupoId: string, exercicioId: string) => void;
+  registrarSerie: (
+    grupoId: string,
+    exercicioId: string,
+    /** Distância, em grupos de km. Ignorado em grupos de séries. */
+    valor?: number,
+  ) => void;
   desfazerUltimaSerie: () => void;
   encerrarSessao: () => void;
   adicionarGrupo: (nome: string) => void;
@@ -66,8 +71,10 @@ export function Provedor({ children }: { children: React.ReactNode }) {
 
   const acoes = useMemo(
     () => ({
-      registrarSerie: (grupoId: string, exercicioId: string) =>
-        editar((e) => comSerieRegistrada(e, grupoId, exercicioId, Date.now(), novoId)),
+      registrarSerie: (grupoId: string, exercicioId: string, valor?: number) =>
+        editar((e) =>
+          comSerieRegistrada(e, grupoId, exercicioId, Date.now(), novoId, valor),
+        ),
 
       desfazerUltimaSerie: () => editar(semUltimaSerie),
 

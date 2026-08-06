@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { exerciciosDoGrupo } from "@/lib/estado";
+import { ehKm, exerciciosDoGrupo } from "@/lib/estado";
 import { useLoja } from "@/lib/store";
 import type { Estado, Grupo } from "@/lib/tipos";
 
@@ -28,6 +28,7 @@ export function GrupoEditor({
   const [novo, setNovo] = useState("");
 
   const exercicios = exerciciosDoGrupo(estado, grupo.id);
+  const porDistancia = ehKm(grupo);
 
   function adicionar() {
     if (!novo.trim()) return;
@@ -66,6 +67,7 @@ export function GrupoEditor({
           >
             +
           </button>
+          <span className="rotulo w-8 shrink-0">{porDistancia ? "km" : "sér"}</span>
         </div>
       </div>
 
@@ -94,6 +96,18 @@ export function GrupoEditor({
           className="rotulo min-h-9 disabled:opacity-25"
         >
           ↓
+        </button>
+        <button
+          type="button"
+          onClick={() =>
+            atualizarGrupo(grupo.id, {
+              unidade: porDistancia ? "series" : "km",
+            })
+          }
+          aria-label={`Contar ${grupo.nome} em ${porDistancia ? "séries" : "quilômetros"}`}
+          className={`rotulo min-h-9 ${porDistancia ? "text-accent" : ""}`}
+        >
+          {porDistancia ? "em km" : "em séries"}
         </button>
         <button
           type="button"

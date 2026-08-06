@@ -94,6 +94,16 @@ estado do React e de escrever no `localStorage`. Não misture.
 **Uma série é o único fato gravado.** Progresso, sessões, histórico e totais são
 todos derivados de `Serie[]`. Não crie contador denormalizado.
 
+**Grupo tem unidade; série tem valor.** `Grupo.unidade` é `"series"` (padrão) ou
+`"km"`, e `Serie.valor` guarda a distância só nos grupos de km. Os dois campos
+são **opcionais de propósito**: `quantidade()` devolve `valor ?? 1`, e é isso
+que mantém todo o histórico anterior ao recurso válido sem migração nem bump de
+`versao`. Nunca leia `serie.valor` direto — use `quantidade()`.
+
+**Séries e quilômetros nunca somam juntos.** Todo placar agregado (home,
+rotina, histórico) separa as duas unidades. Somar daria "52 séries" incluindo
+20 km, que não quer dizer nada.
+
 ## Armadilhas
 
 **Hidratação.** `localStorage` não existe no servidor. `estado` é `null` até o
@@ -123,8 +133,20 @@ na semana certa. Não "simplifique" isso.
 meta de hoje. Mudar uma meta reescreve a leitura das semanas anteriores. É uma
 escolha consciente; mudar isso exige versionar as metas.
 
+**Trocar a unidade de um grupo reescreve o passado dele.** Um grupo que vira
+`km` passa a somar `valor`, e as séries antigas — que não têm `valor` — valem
+1 km cada. É o mesmo compromisso das metas: o histórico é lido com a
+configuração de hoje. O botão fica em `GrupoEditor`.
+
 **Remover grupo não apaga as séries.** As séries antigas ficam e aparecem no
 histórico numa linha "Fora da rotina", sem barra e fora do placar da semana.
+
+**O contador de sessão só existe com treino aberto.** `totalDaSessao()` soma o
+que saiu na sessão em andamento e aparece no `GrupoCard` antes do total da
+semana. A página não tica: ela recalcula a cada mudança de estado, que é o que
+acontece a cada série registrada. Se o app ficar aberto e parado mais de uma
+hora, o número da sessão fica em tela até a próxima interação — não é dado
+errado, é só um rótulo velho, e some no próximo render.
 
 **Nada de `window.confirm`/`alert`.** Confirmação destrutiva é em dois toques no
 próprio botão (ver `GrupoEditor`). Diálogo nativo é ruim no celular.

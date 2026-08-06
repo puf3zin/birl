@@ -7,7 +7,13 @@ import { GrupoCard } from "@/components/GrupoCard";
 import { Masthead } from "@/components/Masthead";
 import { PainelDescanso } from "@/components/PainelDescanso";
 import { TempoDeTreino } from "@/components/TempoDeTreino";
-import { progressoPorGrupo } from "@/lib/estado";
+import {
+  ehKm,
+  formatarNumero,
+  progressoPorGrupo,
+  sessaoAberta,
+  totalDaSessao,
+} from "@/lib/estado";
 import { rotuloDaSemana } from "@/lib/semana";
 import { useLoja } from "@/lib/store";
 
@@ -31,8 +37,18 @@ export default function Semana() {
 
   const hoje = new Date();
   const progresso = progressoPorGrupo(estado, hoje);
-  const feitoTotal = progresso.reduce((n, p) => n + p.feito, 0);
-  const metaTotal = progresso.reduce((n, p) => n + p.grupo.meta, 0);
+
+  // A sessão aqui é lida sem cronômetro: só precisamos saber se existe uma
+  // aberta para somar o que já saiu nela. Quem tica é o TempoDeTreino.
+  const sessao = sessaoAberta(estado, hoje.getTime());
+  const naSessao = sessao ? totalDaSessao(estado, sessao.id) : null;
+
+  // Séries e quilômetros não somam juntos: cada unidade tem seu placar.
+  const emSeries = progresso.filter((p) => !ehKm(p.grupo));
+  const emKm = progresso.filter((p) => ehKm(p.grupo));
+  const soma = (lista: typeof progresso, campo: "feito" | "meta") =>
+    lista.reduce((n, p) => n + (campo === "feito" ? p.feito : p.grupo.meta), 0);
+
   const aberto = progresso.find((p) => p.grupo.id === grupoAberto);
 
   return (
@@ -47,7 +63,14 @@ export default function Semana() {
               {rotuloDaSemana(hoje)}
             </h1>
             <p className="tabular mt-2 font-mono text-[11.5px] text-muted">
-              {feitoTotal} de {metaTotal} séries
+              {soma(emSeries, "feito")} de {soma(emSeries, "meta")} séries
+              {emKm.length > 0 && (
+                <>
+                  {" · "}
+                  {formatarNumero(soma(emKm, "feito"), "km")} de{" "}
+                  {formatarNumero(soma(emKm, "meta"), "km")} km
+                </>
+              )}
             </p>
           </div>
           <TempoDeTreino estado={estado} />
@@ -68,6 +91,7 @@ export default function Semana() {
                 <GrupoCard
                   grupo={grupo}
                   feito={feito}
+                  naSessao={naSessao?.get(grupo.id) ?? 0}
                   aoTocar={() => setGrupoAberto(grupo.id)}
                 />
               </li>
@@ -83,6 +107,7 @@ export default function Semana() {
           estado={estado}
           grupo={aberto.grupo}
           feito={aberto.feito}
+          naSessao={naSessao?.get(aberto.grupo.id) ?? 0}
           aoFechar={() => setGrupoAberto(null)}
         />
       )}
